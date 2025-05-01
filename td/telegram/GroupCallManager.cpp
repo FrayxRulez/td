@@ -2179,6 +2179,14 @@ bool GroupCallManager::is_group_call_active(const GroupCall *group_call) {
   return group_call != nullptr && group_call->is_inited && group_call->is_active;
 }
 
+bool GroupCallManager::need_group_call_version(InputGroupCallId input_group_call_id) const {
+  auto block_it = being_joined_call_blocks_.find(input_group_call_id);
+  if (block_it != being_joined_call_blocks_.end()) {
+    return true;
+  }
+  return false;
+}
+
 bool GroupCallManager::need_group_call_participants(InputGroupCallId input_group_call_id) const {
   return need_group_call_participants(get_group_call(input_group_call_id));
 }
@@ -5626,7 +5634,8 @@ InputGroupCallId GroupCallManager::update_group_call(const tl_object_ptr<telegra
           on_receive_group_call_version(input_group_call_id, call.version);
         } else {
           need_update |= set_group_call_participant_count(group_call, call.participant_count, "update_group_call");
-          if (need_group_call_participants(group_call) && !join_params.empty() && group_call->version == -1) {
+          if ((need_group_call_version(input_group_call_id) || need_group_call_participants(group_call)) &&
+              !join_params.empty() && group_call->version == -1) {
             LOG(INFO) << "Init " << call.group_call_id << " version to " << call.version;
             group_call->version = call.version;
             if (process_pending_group_call_participant_updates(input_group_call_id)) {

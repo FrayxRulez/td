@@ -300,6 +300,8 @@ class GroupCallManager final : public Actor {
 
   static bool is_group_call_active(const GroupCall *group_call);
 
+  bool need_group_call_version(InputGroupCallId input_group_call_id) const;
+
   bool need_group_call_participants(InputGroupCallId input_group_call_id) const;
 
   static bool need_group_call_participants(const GroupCall *group_call);
